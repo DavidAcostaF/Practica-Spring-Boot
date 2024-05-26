@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https:/www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student form</title>
+</head>
+<body>
+    <h1>Student Form</h1>
+    <form th:object="${student}" th:action="${url}" method="post">
+        <input type="text" th:field="*{name}">
+        <input type="email" th:field="*{email}">
+        <input type="date" th:field="*{dob}">
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="/list">Return to the students list</a>
+</body>
+</html>

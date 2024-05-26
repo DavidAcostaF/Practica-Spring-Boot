@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Update Student</h1>
+<form th:object="${student}" th:action="${url}" method="post">
+    <input type="hidden" name="id" th:field="*{id}">
+    <input type="text" name="name" th:field="*{name}">
+    <input type="email" name="email" th:field="*{email}">
+    <input type="date" name="dob" th:value="${student.dob}">
+    <button type="submit">Save</button>
+</form>
+
+<a href="/list">Return to the students list</a>
+</body>
+</html>
