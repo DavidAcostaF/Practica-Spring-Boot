@@ -56,4 +56,10 @@ public class StudentViewController {
         studentService.updateStudent(id,student);
         return "redirect:/list";
     }
+
+    @GetMapping("/student/delete/{id}")
+    public String deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return "redirect:/list";
+    }
 }

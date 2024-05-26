@@ -27,7 +27,8 @@
             <td th:text="${student.dob}"></td>
             <td>
                 <a th:href="@{/update_student/{id}(id=${student.id})}">Edit</a>
-                <a>Delete</a>
+
+                <a   th:href="@{/student/delete/{id}(id=${student.id})}" onclick="deleteStudent(event)">Delete</a>
             </td>
 
         </tr>
@@ -39,4 +40,5 @@
     <a href="/student_form">Add new Student</a>
 
 </body>
+<script src="/js/studentsList.js"></script>
 </html>
