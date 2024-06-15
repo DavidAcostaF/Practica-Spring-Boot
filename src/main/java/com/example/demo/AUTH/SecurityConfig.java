@@ -38,11 +38,9 @@ public class SecurityConfig {
                         exceptionHandling->
                                 exceptionHandling
                                         .authenticationEntryPoint((request, response, authException) -> {
-                                        //response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                                         response.sendRedirect("/login");
                                     }))
                 .logout(logout -> {
-                    logout.logoutSuccessUrl("/logout");
                     logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"));
                     logout.logoutSuccessUrl("/login");
                     logout.deleteCookies("token"); } )
