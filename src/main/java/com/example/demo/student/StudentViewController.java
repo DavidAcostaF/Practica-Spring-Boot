@@ -1,22 +1,25 @@
 package com.example.demo.student;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
 @RequestMapping("")
 public class StudentViewController {
 
-    private StudentService studentService;
+    private final StudentService studentService;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public StudentViewController(StudentService studentService) {
+    public StudentViewController(StudentService studentService, PasswordEncoder passwordEncoder) {
         this.studentService = studentService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // La clase model se utiliza para transferir objetos del controller a la vista
@@ -27,16 +30,39 @@ public class StudentViewController {
         return "students/students_list";
     }
 
-    @GetMapping("/student_form")
-    public String studentForm(Model model) {
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
 
         model.addAttribute("student",new Student());
-        model.addAttribute("url","/student_form/add");
-        return "students/student_form";
+        return "register";
     }
-    @PostMapping("/student_form/add")
-    public String saveStudent(@ModelAttribute Student student) {
+
+
+    @PostMapping("/register")
+    public String registerStudent(@ModelAttribute("student") Student student,
+                               Model model) {
+
+
+//        if (studentService.getStudentByEmail(student.getEmail())!=null) {
+//            model.addAttribute("emailError", "Email already exists");
+//            return "register";
+//        }
+
+        student.setPassword(passwordEncoder.encode(student.getPassword()));
+
         studentService.addNewStudent(student);
+        return "redirect:/login"; // Redirect to login page after successful registration
+    }
+
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        model.addAttribute("student",new Student());
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String loginStudent(@ModelAttribute("student") Student student){
+        student.setPassword(passwordEncoder.encode(student.getPassword()));
         return "redirect:/list";
     }
 

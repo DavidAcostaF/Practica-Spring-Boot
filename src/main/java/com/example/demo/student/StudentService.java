@@ -3,6 +3,8 @@ package com.example.demo.student;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,10 +16,14 @@ import java.util.Optional;
 
 @Service
 public class StudentService {
+
     private final StudentRepository studentRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository,PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     public List<Student> getStudents() {
         return studentRepository.findAll();
@@ -68,4 +74,21 @@ public class StudentService {
         studentObtained.setDob(student.getDob());
         studentRepository.save(studentObtained);
     }
+
+    public Student getStudentByEmail(String email) {
+        return studentRepository.findStudentByEmail(email)
+                .orElse(null); // Manejar el caso en que el usuario no sea encontrado
+    }
+
+//    public Student login(Student student) {
+//        Optional<Student> studentOptional = studentRepository.findStudentByEmail(student.getEmail());
+//        if (studentOptional.isPresent()) {
+//            Student studentFound = studentOptional.get();
+//            // Verificar si la contraseña proporcionada coincide con la contraseña almacenada codificada
+//            if (passwordEncoder.matches(student.getPassword(), studentFound.getPassword())) {
+//                return student; // Credenciales válidas, devolver el objeto Student
+//            }
+//        }
+//        return null; // Credenciales inválidas o usuario no encontrado
+//    }
 }
