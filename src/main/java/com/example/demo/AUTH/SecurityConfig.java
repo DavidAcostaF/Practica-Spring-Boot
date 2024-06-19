@@ -28,7 +28,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        authRequest-> authRequest.requestMatchers("/auth/**", "/login", "/register", "/public/**", "/css/**", "/js/**", "/images/**").permitAll().
+                        authRequest-> authRequest.requestMatchers("/auth/**", "/login", "/register", "/public/**", "/css/**", "/js/**", "/images/**", "/error", "/404").permitAll().
                                 anyRequest().
                                 authenticated())
                 .sessionManagement(
@@ -39,7 +39,10 @@ public class SecurityConfig {
                                 exceptionHandling
                                         .authenticationEntryPoint((request, response, authException) -> {
                                         response.sendRedirect("/login");
-                                    }))
+                                    })
+                                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                            response.sendRedirect("/404");
+                                        }))
                 .logout(logout -> {
                     logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"));
                     logout.logoutSuccessUrl("/login");

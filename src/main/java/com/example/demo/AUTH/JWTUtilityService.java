@@ -58,6 +58,7 @@ public class JWTUtilityService {
         }
 
         JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
         if(claimsSet.getExpirationTime().before(new Date())){
             throw new JOSEException("Expired token");
         }

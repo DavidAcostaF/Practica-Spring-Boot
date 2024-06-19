@@ -86,6 +86,12 @@ public class StudentViewController {
     @GetMapping("/student/delete/{id}")
     public String deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
+
         return "redirect:/list";
     }
+    @GetMapping("/404")
+    private String notFound() {
+        return "404";
+    }
+
 }

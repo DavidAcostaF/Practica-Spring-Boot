@@ -31,14 +31,15 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = null;
+        Cookie tokenCookie = null;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
                     token = cookie.getValue();
+                    tokenCookie = cookie;
                 }
             }
         }
-
         if (token != null) {
             try {
                 JWTClaimsSet claims = jwtUtilityService.parseJWT(token);
@@ -47,6 +48,11 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | ParseException | JOSEException e) {
                 // Logging the exception for debugging purposes
                 System.out.println("Failed to parse JWT token: " + e.getMessage());
+                if (tokenCookie != null) {
+                    tokenCookie.setMaxAge(0);
+                    tokenCookie.setPath("/"); // Ensure you set the correct path for your application
+                    response.addCookie(tokenCookie);
+                }
                 e.printStackTrace();
                 // Optionally, you can send an error response or handle it in a custom way
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
