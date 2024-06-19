@@ -43,11 +43,6 @@ public class StudentViewController {
                                Model model) {
 
 
-//        if (studentService.getStudentByEmail(student.getEmail())!=null) {
-//            model.addAttribute("emailError", "Email already exists");
-//            return "register";
-//        }
-
         student.setPassword(passwordEncoder.encode(student.getPassword()));
 
         studentService.addNewStudent(student);
@@ -71,7 +66,6 @@ public class StudentViewController {
 
         Student student = studentService.getStudent(id);
         model.addAttribute("student",student);
-        System.out.println(student.getDob());
         model.addAttribute("url","/update_student/"+id);
 
         return "students/update_student_form";

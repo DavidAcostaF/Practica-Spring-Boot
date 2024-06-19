@@ -27,6 +27,7 @@ public class AuthService {
     }
 
     public HashMap<String,String> login(LoginDTO login) throws Exception {
+
         try {
             HashMap<String, String> jwt = new HashMap<>();
 
@@ -35,6 +36,8 @@ public class AuthService {
                 jwt.put("error", "Student not registered!");
                 return jwt;
             }
+
+
             if(verifyPassword(login.getPassword(), student.get().getPassword())) {
                 jwt.put("jwt", jwtUtilityService.generateJWT(student.get().getId()));
 

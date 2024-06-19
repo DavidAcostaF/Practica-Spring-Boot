@@ -80,15 +80,8 @@ public class StudentService {
                 .orElse(null); // Manejar el caso en que el usuario no sea encontrado
     }
 
-//    public Student login(Student student) {
-//        Optional<Student> studentOptional = studentRepository.findStudentByEmail(student.getEmail());
-//        if (studentOptional.isPresent()) {
-//            Student studentFound = studentOptional.get();
-//            // Verificar si la contraseña proporcionada coincide con la contraseña almacenada codificada
-//            if (passwordEncoder.matches(student.getPassword(), studentFound.getPassword())) {
-//                return student; // Credenciales válidas, devolver el objeto Student
-//            }
-//        }
-//        return null; // Credenciales inválidas o usuario no encontrado
-//    }
+    public boolean isStudentDeleted(Long studentId) {
+        return !studentRepository.existsById(studentId);
+    }
+
 }

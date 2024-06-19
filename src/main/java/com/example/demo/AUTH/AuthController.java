@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
 
@@ -24,9 +25,27 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    private ResponseEntity<Student> register(@ModelAttribute Student student) throws Exception {
-        return new ResponseEntity<>(authService.register(student), HttpStatus.CREATED);
+    public RedirectView register(@ModelAttribute Student student, HttpServletResponse response) {
+        try {
+            LoginDTO loginDTO = new LoginDTO();
+            loginDTO.setPassword(student.getPassword());
+            loginDTO.setEmail(student.getEmail());
 
+            // Registra al estudiante
+            Student studentCreated = authService.register(student);
+            ResponseEntity<HashMap<String, String>> loginResponse = this.login(loginDTO, response);
+
+            // Si el login es exitoso, redirige a la lista de estudiantes
+
+            if (loginResponse.getStatusCode() == HttpStatus.OK) {
+                return new RedirectView("/list");
+            } else {
+                return new RedirectView("/register");
+            }
+        } catch (Exception e) {
+            // Maneja el error del registro
+            return new RedirectView("/register");
+        }
     }
 
     @PostMapping("/login")
@@ -47,14 +66,4 @@ public class AuthController {
             return new ResponseEntity<>(login, HttpStatus.UNAUTHORIZED);
         }
     }
-
-
-
-//    @GetMapping("/logout")
-//    private ResponseEntity<String> logout(HttpServletResponse response) throws Exception {
-//        SecurityContextHolder.clearContext();
-//        //CookieUti.deleteCookie(request, response, "jwtToken"); // Implementa el método según tu configuración de cookies
-//
-//        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
-//    }
 }

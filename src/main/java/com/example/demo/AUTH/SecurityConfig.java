@@ -1,9 +1,11 @@
 package com.example.demo.AUTH;
 
+import com.example.demo.student.StudentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,8 +22,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
+    private final JWTUtilityService jwtUtilityService;
+    private final StudentService studentService;
+
     @Autowired
-    private JWTUtilityService jwtUtilityService;
+    public SecurityConfig(JWTUtilityService jwtUtilityService, @Lazy StudentService studentService) {
+        this.jwtUtilityService = jwtUtilityService;
+        this.studentService = studentService;
+    }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,7 +42,8 @@ public class SecurityConfig {
                                 authenticated())
                 .sessionManagement(
                         sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JWTAuthorizationFilter(jwtUtilityService),UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new TokenRedirectFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthorizationFilter(jwtUtilityService,studentService),UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(
                         exceptionHandling->
                                 exceptionHandling

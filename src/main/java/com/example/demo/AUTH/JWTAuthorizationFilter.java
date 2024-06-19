@@ -1,5 +1,6 @@
 package com.example.demo.AUTH;
 
+import com.example.demo.student.StudentService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.servlet.FilterChain;
@@ -19,14 +20,13 @@ import java.text.ParseException;
 import java.util.Collections;
 
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-    @Autowired
-    JWTUtilityService jwtUtilityService;
+    private final JWTUtilityService jwtUtilityService;
+    private final StudentService studentService;
 
-    public JWTAuthorizationFilter(JWTUtilityService jwtUtilityService) {
+    public JWTAuthorizationFilter(JWTUtilityService jwtUtilityService, StudentService studentService) {
         this.jwtUtilityService = jwtUtilityService;
+        this.studentService = studentService;
     }
-
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,21 +40,34 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 }
             }
         }
+
         if (token != null) {
             try {
                 JWTClaimsSet claims = jwtUtilityService.parseJWT(token);
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(claims.getSubject(), null, Collections.emptyList());
+                String studentId = claims.getSubject(); // Asumiendo que el ID del estudiante está en el subject del token
+
+                // Verificar si el estudiante aún existe
+                if (studentService.isStudentDeleted(Long.valueOf(studentId))) {
+                    if (tokenCookie != null) {
+                        tokenCookie.setMaxAge(0);
+                        tokenCookie.setPath("/");
+                        response.addCookie(tokenCookie);
+                    }
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.sendRedirect("/login");
+                    return;
+                }
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(studentId, null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | ParseException | JOSEException e) {
-                // Logging the exception for debugging purposes
                 System.out.println("Failed to parse JWT token: " + e.getMessage());
                 if (tokenCookie != null) {
                     tokenCookie.setMaxAge(0);
-                    tokenCookie.setPath("/"); // Ensure you set the correct path for your application
+                    tokenCookie.setPath("/");
                     response.addCookie(tokenCookie);
                 }
                 e.printStackTrace();
-                // Optionally, you can send an error response or handle it in a custom way
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid token");
                 return;
